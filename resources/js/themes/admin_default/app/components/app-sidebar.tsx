@@ -1,0 +1,70 @@
+import { Link } from '@inertiajs/react';
+import type { PropsWithChildren } from 'react';
+import { NavFooter } from '@/components/navigation/nav-footer';
+import { NavMain } from '@/components/navigation/nav-main';
+import { NavUser } from '@/components/navigation/nav-user';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/layout/sidebar';
+// import { type NavItem } from '@/types';
+
+import AppLogo from './app-logo';
+
+interface AuthUser {
+    dashboard_url?: string;
+    [key: string]: unknown;
+}
+
+interface NavItem {
+    [key: string]: unknown;
+}
+
+export function AppSidebar({
+    authUser,
+    mainNavItems,
+    footerNavItems,
+    profileNavItems,
+}: PropsWithChildren<{
+    authUser?: AuthUser;
+    footerNavItems?: NavItem[];
+    mainNavItems?: NavItem[];
+    profileNavItems?: NavItem[];
+}>) {
+    return (
+        <Sidebar collapsible="icon" variant="inset">
+            <SidebarHeader className="mb-5 p-0">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="lg" asChild>
+                            <Link
+                                href={authUser?.dashboard_url || '/dashboard'}
+                                prefetch
+                            >
+                                <AppLogo />
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+
+            <SidebarContent>
+                <NavMain items={mainNavItems} />
+            </SidebarContent>
+
+            <SidebarFooter>
+                <NavFooter items={footerNavItems} className="mt-auto" />
+                <NavUser
+                    authUser={authUser}
+                    profileNavItems={profileNavItems}
+                />
+            </SidebarFooter>
+        </Sidebar>
+    );
+}
+

@@ -1,0 +1,28 @@
+{
+    "name": "susheelbhai/laravel-basekit",
+    "description": "Starter Kit developed for Laravel.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Susheelbhai\\Basekit\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Susheelbhai\\Basekit\\BasekitServiceProvider",
+                "Susheelbhai\\Basekit\\BladeServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Susheel Kumar Singh",
+            "email": "susheelkrsingh306@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+    }
+}

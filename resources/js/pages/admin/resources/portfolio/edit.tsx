@@ -1,0 +1,89 @@
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import type { FormEventHandler } from 'react';
+import { FormContainer } from '@/components/form/container/form-container';
+import { InputDiv } from '@/components/form/container/input-div';
+import AppLayout from '@/layouts/admin/app-layout';
+import type { BreadcrumbItem, SharedData } from '@/types';
+
+type CreateForm = {
+    name: string;
+    url: string;
+    is_active: number;
+    logo: string | File;
+};
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Portfolio',
+        href: '/admin/portfolio',
+    },
+    {
+        title: 'Edit',
+        href: '/dashboard',
+    },
+];
+
+interface PortfolioData {
+    id: number;
+    name: string;
+    url: string;
+    is_active: number;
+    logo: string;
+}
+
+interface PortfolioEditPageProps extends SharedData {
+    data: PortfolioData;
+}
+
+export default function Create() {
+    const portfolio = usePage<PortfolioEditPageProps>().props.data || {} as PortfolioData;
+
+    const { setData, processing, errors, reset, data } = useForm<Required<CreateForm>>({
+        name: portfolio.name,
+        url: portfolio.url,
+        logo: portfolio.logo || '',
+        is_active: portfolio.is_active || 1,
+    });
+
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+    
+        const formData = new FormData();
+    
+        Object.entries(data).forEach(([key, value]) => {
+            formData.append(key, value as string);
+        });
+    
+        // 👇 Spoof the PUT method
+        formData.append('_method', 'PUT');
+    
+        router.post(route('admin.portfolio.update', portfolio.id), formData, {
+            forceFormData: true, // Ensures Inertia sends as multipart/form-data
+            onSuccess: () => reset(),
+            onError: (errors) => console.log('Validation errors:', errors),
+        });
+    };
+    const inputDivData = {
+        data,
+        setData,
+        errors: Object.fromEntries(Object.entries(errors).map(([key, value]) => [key, value ? [value] : []])),
+    };
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Create Portfolio" />
+            <FormContainer onSubmit={submit} processing={processing}>
+                <InputDiv type="text" label="Name" name="name" inputDivData={inputDivData} />
+                <InputDiv type="text" label="Url" name="url" inputDivData={inputDivData} />
+                
+                <InputDiv type="image" label="Logo" name="logo" inputDivData={inputDivData} />
+
+
+                <InputDiv type="switch" label="Active" name="is_active" inputDivData={inputDivData} />
+
+                
+            </FormContainer>
+        </AppLayout>
+    );
+}

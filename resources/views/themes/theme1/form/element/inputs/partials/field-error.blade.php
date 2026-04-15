@@ -1,0 +1,4 @@
+{{-- input-error.tsx --}}
+@error($name)
+    <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+@enderror

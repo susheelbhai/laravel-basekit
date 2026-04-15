@@ -1,0 +1,117 @@
+import { Link, usePage } from "@inertiajs/react";
+import { useState } from "react";
+import { FaBars, FaTimes } from "react-icons/fa";
+import { Container } from "@/components/ui/layout/container";
+import AuthSection from "./auth-section";
+import type { SharedData } from '@/types';
+
+const routeExists = (name: string): boolean => {
+    try {
+        route(name);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+interface MenuItem {
+    name: string;
+    routeName: string;
+}
+
+interface ProfileItem {
+    name: string;
+    routeName: string;
+    method?: string;
+}
+
+interface AppData {
+    dark_logo: string;
+}
+
+interface HeaderPageProps extends SharedData {
+    appData: AppData;
+}
+
+export default function Header({
+    menuItems,
+    profileItems,
+    loginRoute
+}: {
+    menuItems: MenuItem[];
+    profileItems: ProfileItem[];
+    loginRoute: string;
+}) {
+    const { appData } = usePage<HeaderPageProps>().props;
+    const loginExists = routeExists(loginRoute);
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    // Filter menuItems to only those with available routes
+    const availableMenuItems = menuItems.filter((item: MenuItem) => routeExists(item.routeName));
+
+    return (
+        <header className="sticky top-0 z-50 bg-header/90 shadow-sm backdrop-blur-xl">
+            <Container className="mx-auto flex items-center justify-between px-4 py-3.5 md:py-4">
+                {/* Logo */}
+                <div className="flex items-center gap-2">
+                    <Link href="/" className="flex items-center">
+                        <img
+                            src={appData.dark_logo}
+                            alt="Logo"
+                            className="h-10 w-auto md:h-12"
+                        />
+                    </Link>
+                </div>
+
+                {/* Desktop Menu */}
+                <nav className="hidden items-center gap-1 text-sm font-medium text-header-foreground md:flex">
+                    {availableMenuItems.map((item: MenuItem) => (
+                        <Link
+                            key={item.name}
+                            href={route(item.routeName)}
+                            className="rounded-full px-3 py-2 transition-colors hover:bg-muted hover:text-primary"
+                        >
+                            {item.name}
+                        </Link>
+                    ))}
+                </nav>
+
+                {/* Right: Profile / Login (Desktop) */}
+                {loginExists && <AuthSection profileItems={profileItems} loginRoute={loginRoute} />}
+
+                {/* Mobile Menu Toggle */}
+                <button
+                    onClick={() => {
+                        setMenuOpen((prev) => !prev);
+                    }}
+                    className="flex items-center text-xl text-muted-foreground md:hidden"
+                >
+                    {menuOpen ? <FaTimes /> : <FaBars />}
+                </button>
+            </Container>
+
+            {/* Mobile Menu Dropdown */}
+            {menuOpen && (
+                <div className="border-t border-border bg-header px-4 pb-4 shadow md:hidden">
+                    <nav className="flex flex-col space-y-1.5 pt-3 text-sm font-medium text-header-foreground">
+                        {availableMenuItems.map((item: MenuItem) => (
+                            <Link
+                                key={item.name}
+                                href={route(item.routeName)}
+                                className="rounded-div px-3 py-2 transition-colors hover:bg-muted hover:text-primary"
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                {item.name}
+                            </Link>
+                        ))}
+
+                        {/* Mobile Profile / Login */}
+                        {loginExists && (
+                            <AuthSection profileItems={profileItems} loginRoute={loginRoute} isMobile />
+                        )}
+                    </nav>
+                </div>
+            )}
+        </header>
+    );
+}

@@ -1,0 +1,1 @@
+<x-layout.header.logo href="{{ route('home') }}" :darkLogo="asset($setting->dark_logo ?? 'dummy.png')"/>

@@ -1,0 +1,35 @@
+export type FormType = {
+    seller_id: number | string;
+    product_category_id: number;
+
+    title: string;
+    slug: string;
+    sku: string;
+
+    short_description: string;
+    description: string;
+    long_description2: string;
+    long_description3: string;
+    features: string[];
+
+    price: number;
+    original_price: number;
+    mrp: number;
+
+    stock: number;
+    manage_stock: number;
+
+    images: UploadValue;
+
+    is_active: number;
+    is_featured: number;
+
+    meta_title: string;
+    meta_description: string;
+};
+
+export type UploadValue = File | string | null;
+export type CategoryOption = {
+    id: number;
+    title: string;
+};
