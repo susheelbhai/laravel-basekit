@@ -2,8 +2,9 @@
 
 namespace Susheelbhai\Basekit\Commands\Helper;
 
-use Symfony\Component\Process\Process;
+use Illuminate\Console\Command;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class InstallPackages
 {
@@ -33,7 +34,7 @@ class InstallPackages
             'tightenco/ziggy',
             'inertiajs/inertia-laravel',
         ];
-        $this->installComposerPackages($this_data, $composerPackages);
+        $this->ensureComposerPackages($this_data, $composerPackages);
     }
 
     private function installAllNpm($this_data): void
@@ -58,43 +59,163 @@ class InstallPackages
             'tailwind-merge',
         ];
 
-        $this->installNpmPackages($this_data, $npmPackages);
+        $this->ensureNpmPackages($this_data, $npmPackages);
+    }
+
+    /**
+     * Install and verify Composer packages; auto-retry up to 3 times, then optionally prompt.
+     */
+    private function ensureComposerPackages(Command $command, array $packageNames): void
+    {
+        for ($attempt = 0; $attempt < 4; $attempt++) {
+            $this->installComposerPackages($command, $packageNames);
+            $missing = $this->missingComposerPackages($packageNames);
+            if ($missing === []) {
+                $command->info('All required Composer packages are present.');
+
+                return;
+            }
+            $command->warn('Composer package(s) not detected: '.implode(', ', $missing));
+            if ($attempt < 3) {
+                $command->line('Retrying Composer install...');
+            }
+        }
+
+        if (! $command->confirm('Some Composer packages are still missing after 3 retries. Do you want to retry installation? (No = skip and continue)', false)) {
+            $command->warn('Skipping further Composer installation attempts.');
+
+            return;
+        }
+
+        $this->installComposerPackages($command, $packageNames);
+        $missing = $this->missingComposerPackages($packageNames);
+        if ($missing === []) {
+            $command->info('All required Composer packages are present.');
+        } else {
+            $command->error('Composer packages still missing: '.implode(', ', $missing));
+        }
+    }
+
+    /**
+     * Install and verify NPM packages; auto-retry up to 3 times, then optionally prompt.
+     */
+    private function ensureNpmPackages(Command $command, array $packageNames): void
+    {
+        for ($attempt = 0; $attempt < 4; $attempt++) {
+            $this->installNpmPackages($command, $packageNames);
+            $missing = $this->missingNpmPackages($packageNames);
+            if ($missing === []) {
+                $command->info('All required NPM packages are present.');
+
+                return;
+            }
+            $command->warn('NPM package(s) not detected in package.json: '.implode(', ', $missing));
+            if ($attempt < 3) {
+                $command->line('Retrying NPM install...');
+            }
+        }
+
+        if (! $command->confirm('Some NPM packages are still missing after 3 retries. Do you want to retry installation? (No = skip and continue)', false)) {
+            $command->warn('Skipping further NPM installation attempts.');
+
+            return;
+        }
+
+        $this->installNpmPackages($command, $packageNames);
+        $missing = $this->missingNpmPackages($packageNames);
+        if ($missing === []) {
+            $command->info('All required NPM packages are present.');
+        } else {
+            $command->error('NPM packages still missing: '.implode(', ', $missing));
+        }
+    }
+
+    /**
+     * @return list<string> original specs still absent from the Composer install
+     */
+    private function missingComposerPackages(array $packageNames): array
+    {
+        $installed = $this->installedComposerPackageNames();
+        $missing = [];
+        foreach ($packageNames as $pkg) {
+            $name = strtolower($this->normalizeComposerPackageName($pkg));
+            if ($name === '' || ! isset($installed[$name])) {
+                $missing[] = $pkg;
+            }
+        }
+
+        return $missing;
+    }
+
+    /**
+     * @return list<string> original specs still absent from package.json
+     */
+    private function missingNpmPackages(array $packageNames): array
+    {
+        $declared = $this->packageJsonDependencyKeys();
+        $missing = [];
+        foreach ($packageNames as $pkg) {
+            $displayName = $this->normalizeNpmPackageName($pkg);
+            if ($displayName === '' || ! isset($declared[$displayName])) {
+                $missing[] = $pkg;
+            }
+        }
+
+        return $missing;
     }
 
     /**
      * Install multiple NPM packages by name.
-     * @param $this_data
-     * @param array $packageNames
      */
     private function installNpmPackages($this_data, array $packageNames)
     {
+        $declared = $this->packageJsonDependencyKeys();
+        $missing = [];
+
         foreach ($packageNames as $pkg) {
-            if ($this->npmPackageInstalled($pkg)) {
-                $displayName = $this->normalizeNpmPackageName($pkg);
+            $displayName = $this->normalizeNpmPackageName($pkg);
+            if ($displayName !== '' && isset($declared[$displayName])) {
                 $this_data->info("NPM package \"{$displayName}\" is already installed, skipping.");
 
                 continue;
             }
-            $this->installPackage($this_data, ['npm', 'install', $pkg], "NPM package: $pkg");
+            $missing[] = $pkg;
         }
+
+        if ($missing === []) {
+            return;
+        }
+
+        $cmd = array_merge(['npm', 'install'], $missing);
+        $label = 'NPM packages: '.implode(', ', $missing);
+        $this->installPackage($this_data, $cmd, $label);
     }
 
     /**
      * Install multiple Composer packages by name.
-     * @param $this_data
-     * @param array $packageNames
      */
     private function installComposerPackages($this_data, array $packageNames)
     {
+        $installed = $this->installedComposerPackageNames();
+        $missing = [];
+
         foreach ($packageNames as $pkg) {
-            $name = $this->normalizeComposerPackageName($pkg);
-            if ($this->composerPackageInstalled($name)) {
+            $name = strtolower($this->normalizeComposerPackageName($pkg));
+            if ($name !== '' && isset($installed[$name])) {
                 $this_data->info("Composer package \"{$name}\" is already installed, skipping.");
 
                 continue;
             }
-            $this->installPackage($this_data, ['composer', 'require', $pkg], "Composer package: $pkg");
+            $missing[] = $pkg;
         }
+
+        if ($missing === []) {
+            return;
+        }
+
+        $cmd = array_merge(['composer', 'require', '--no-interaction'], $missing);
+        $label = 'Composer packages: '.implode(', ', $missing);
+        $this->installPackage($this_data, $cmd, $label);
     }
 
     private function normalizeComposerPackageName(string $spec): string
@@ -102,12 +223,39 @@ class InstallPackages
         return explode(':', $spec, 2)[0];
     }
 
-    private function composerPackageInstalled(string $packageName): bool
+    /**
+     * @return array<string, true> lowercased package name => true
+     */
+    private function installedComposerPackageNames(): array
     {
-        $process = new Process(['composer', 'show', $packageName, '--no-ansi', '--quiet'], \base_path());
+        // Do not pass --quiet: Composer suppresses JSON output and the list would be empty.
+        $process = new Process(['composer', 'show', '--format=json', '--no-ansi'], \base_path());
         $process->run();
 
-        return $process->isSuccessful();
+        if (! $process->isSuccessful()) {
+            return [];
+        }
+
+        $data = json_decode($process->getOutput(), true);
+        if (! is_array($data)) {
+            return [];
+        }
+
+        $list = [];
+        if (isset($data['installed']) && is_array($data['installed'])) {
+            $list = $data['installed'];
+        } elseif (array_is_list($data)) {
+            $list = $data;
+        }
+
+        $set = [];
+        foreach ($list as $pkg) {
+            if (is_array($pkg) && isset($pkg['name']) && is_string($pkg['name']) && $pkg['name'] !== '') {
+                $set[strtolower($pkg['name'])] = true;
+            }
+        }
+
+        return $set;
     }
 
     /**
@@ -132,21 +280,21 @@ class InstallPackages
         return $spec;
     }
 
-    private function npmPackageInstalled(string $packageSpec): bool
+    /**
+     * Keys from package.json dependency sections (exact names as declared).
+     *
+     * @return array<string, true>
+     */
+    private function packageJsonDependencyKeys(): array
     {
         $path = \base_path('package.json');
         if (! is_readable($path)) {
-            return false;
+            return [];
         }
 
         $json = json_decode((string) file_get_contents($path), true);
         if (! is_array($json)) {
-            return false;
-        }
-
-        $name = $this->normalizeNpmPackageName($packageSpec);
-        if ($name === '') {
-            return false;
+            return [];
         }
 
         $deps = array_merge(
@@ -155,26 +303,40 @@ class InstallPackages
             $json['peerDependencies'] ?? [],
         );
 
-        return array_key_exists($name, $deps);
+        return array_fill_keys(array_keys($deps), true);
     }
 
     private function installPackage($this_data, array $command, string $label)
     {
         $this_data->line("📦 Installing {$label} ...");
-        $this->runCommand($this_data, $command, $label);
+        $streamTag = $this->streamTagForCommand($command);
+        $this->runCommand($this_data, $command, $streamTag);
         $this_data->info("✅ Finished installing {$label}");
         $this_data->line('');
         $this_data->line('');
     }
 
-    private function runCommand($this_data, array $command, string $label, string $workingDir = null)
+    /**
+     * Short tag for subprocess log lines (avoids repeating a long package list on every line).
+     */
+    private function streamTagForCommand(array $command): string
+    {
+        $bin = $command[0] ?? 'cmd';
+
+        return match ($bin) {
+            'composer' => 'composer',
+            'npm' => 'npm',
+            default => $bin,
+        };
+    }
+
+    private function runCommand($this_data, array $command, string $streamTag, ?string $workingDir = null)
     {
         $process = new Process($command, $workingDir ?? \base_path());
         $process->setTimeout(null);
 
-        $process->run(function ($type, $buffer) use ($this_data, $label, $command) {
-            $cmd = implode(' ', $command);
-            $this_data->line("[{$label}] {$buffer}");
+        $process->run(function ($type, $buffer) use ($this_data, $streamTag) {
+            $this_data->line("[{$streamTag}] {$buffer}");
         });
 
         if (! $process->isSuccessful()) {
