@@ -14,6 +14,7 @@ class initial_settings extends Command
     protected $description = 'To change some initial configuration which is required on starting new project';
 
     public $env_values = array(
+        'INERTIA_SSR_ENABLED' => '',
         'APP_APPEARANCE' => 'system',
         'FILESYSTEM_DISK' => 'public',
         'SEND_MAIL' => 1,
@@ -30,7 +31,11 @@ class initial_settings extends Command
         'WHATSAPP_TEST_NUMBER' => 9999999999,
         'WHATSAPP_END_POINT' => '',
         'WHATSAPP_API_KEY' => '',
-        'WHATSAPP_API_KEY2' => ''
+        'WHATSAPP_API_KEY2' => '',
+        'GOOGLE_CLIENT_ID' => '',
+        'GOOGLE_CLIENT_SECRET' => '',
+        'GOOGLE_ANALYTICS_ID' => '',
+        'FACEBOOK_PIXEL_ID' => '',
     );
 
     public function handle()

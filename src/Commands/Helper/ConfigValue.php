@@ -8,7 +8,9 @@ class ConfigValue
         'timezone' => "env('APP_TIMEZONE', 'Asia/Kolkata')",
         'watermark' => "env('WATERMARK', 1)",
         'render_type' => "env('APP_RENDER_TYPE', 'inertia')",
-        'appearance_default' => "env('APP_APPEARANCE', 'light')"
+        'appearance_default' => "env('APP_APPEARANCE', 'light')",
+        'google_analytics_id' => "env('GOOGLE_ANALYTICS_ID')",
+        'facebook_pixel_id' => "env('FACEBOOK_PIXEL_ID')",
     );
     public $config_values_mail = array(
         'send_mail' => "env('SEND_MAIL', '0')",

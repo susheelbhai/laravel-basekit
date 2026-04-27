@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 trait HasMediaConversions
 {
@@ -40,8 +41,12 @@ trait HasMediaConversions
             ->keepOriginalImageFormat();
     }
 
-    public function registerMediaConversions(\Spatie\MediaLibrary\MediaCollections\Models\Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
+        if ($media?->mime_type === 'image/svg+xml') {
+            return;
+        }
+
         $this->addDefaultMediaConversions();
     }
 }

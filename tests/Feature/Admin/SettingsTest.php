@@ -2,6 +2,7 @@
 
 use App\Models\Admin;
 use App\Models\Setting;
+use Illuminate\Http\UploadedFile;
 
 beforeEach(function () {
     $this->admin = Admin::unguarded(function () {
@@ -39,4 +40,22 @@ test('admin can update general settings', function () {
         'id' => 1,
         'app_name' => 'Test App',
     ]);
+});
+
+test('admin can upload svg logos without conversions', function () {
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>';
+
+    $payload = [
+        'app_name' => 'Test App',
+        'phone' => '1234567890',
+        'whatsapp' => '1234567890',
+        'square_dark_logo' => UploadedFile::fake()->createWithContent('square.svg', $svg),
+        'square_light_logo' => UploadedFile::fake()->createWithContent('square-light.svg', $svg),
+        'dark_logo' => UploadedFile::fake()->createWithContent('logo.svg', $svg),
+        'light_logo' => UploadedFile::fake()->createWithContent('logo-light.svg', $svg),
+    ];
+
+    $this->actingAs($this->admin, 'admin')
+        ->patch('/admin/setting/general', $payload)
+        ->assertRedirect(route('admin.dashboard'));
 });

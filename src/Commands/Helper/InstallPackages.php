@@ -27,6 +27,7 @@ class InstallPackages
             'livewire/volt',
             'spatie/laravel-permission',
             'spatie/laravel-medialibrary',
+            'spatie/laravel-sitemap',
             'laravel/socialite',
             'socialiteproviders/amazon',
             'socialiteproviders/apple',

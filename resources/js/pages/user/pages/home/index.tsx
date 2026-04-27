@@ -78,7 +78,10 @@ interface HomePageProps extends SharedData {
 const Page = () => {
     const pageData = usePage<HomePageProps>().props;
     return (
-        <AppLayout title="Home">
+        <AppLayout title="Home"
+            description="Digamite is an IT company building premium websites, mobile apps, custom software, and digital marketing—focused on performance, design, and measurable growth."
+            canonicalUrl={route('home')}
+            ogImageUrl="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80">
             <HeroSection data={{ appData: pageData.appData, data: pageData.data }} />
             <AboutSection data={pageData.data} />
             <ServicesSection data={pageData.services} />

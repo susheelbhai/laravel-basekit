@@ -33,14 +33,17 @@ class UpdateGeneralSettingsRequest extends FormRequest
             'whatsapp' => 'nullable|string|max:20',
         ];
 
-        if ($this->hasFile('favicon')) {
-            $rules['favicon'] = 'image|mimes:png,svg|max:2048';
+        if ($this->hasFile('square_dark_logo')) {
+            $rules['square_dark_logo'] = 'file|mimes:png,svg|mimetypes:image/png,image/svg+xml|max:2048';
         }
         if ($this->hasFile('dark_logo')) {
-            $rules['dark_logo'] = 'image|mimes:png,svg|max:2048';
+            $rules['dark_logo'] = 'file|mimes:png,svg|mimetypes:image/png,image/svg+xml|max:2048';
+        }
+        if ($this->hasFile('square_light_logo')) {
+            $rules['square_light_logo'] = 'file|mimes:png,svg|mimetypes:image/png,image/svg+xml|max:2048';
         }
         if ($this->hasFile('light_logo')) {
-            $rules['light_logo'] = 'image|mimes:png,svg|max:2048';
+            $rules['light_logo'] = 'file|mimes:png,svg|mimetypes:image/png,image/svg+xml|max:2048';
         }
 
         return $rules;

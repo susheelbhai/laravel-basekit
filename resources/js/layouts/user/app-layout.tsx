@@ -1,30 +1,53 @@
 import { Head, usePage } from "@inertiajs/react";
 import { type ReactNode } from "react";
 import { type BreadcrumbItem, type SharedData } from "@/types";
-import { menuItems, profileItems,loginRoute } from "../../../data/js/header_user";
+import { menuItems, profileItems, loginRoute } from "../../../data/js/header_user";
 import AppLayoutTemplate from "../../themes/guest_default/app/app-header-layout";
 
 interface AppLayoutProps {
     children: ReactNode;
     breadcrumbs?: BreadcrumbItem[];
     title: string;
+    description?: string;
+    canonicalUrl?: string;
 }
 
-export default ({ children, breadcrumbs, title, ...props }: AppLayoutProps) => {
+export default ({ children, breadcrumbs, title, description, canonicalUrl, ...props }: AppLayoutProps) => {
     const page = usePage<SharedData>();
-    const { user } = page.props;
-    const appData = (page.props as SharedData & { appData: { name: string } }).appData;
+    const { user } = page.props as unknown as { user?: { name: string; email: string } };
+    const appData = (page.props as unknown as { appData?: { name?: string } }).appData;
+    const appName = appData?.name ?? page.props.name ?? "App";
+    const fullTitle = `${title} - ${appName}`;
 
     return (
         <AppLayoutTemplate
             authUser={user}
-            menuItems={menuItems}
-            profileItems={profileItems}
+            menuItems={menuItems as any}
+            profileItems={profileItems as any}
             loginRoute={loginRoute}
             breadcrumbs={breadcrumbs}
             {...props}
         >
-            <Head title={`${title} - ${appData.name}`} />
+            <Head title={fullTitle} />
+            <Head>
+
+                <meta head-key="og:title" property="og:title" content={fullTitle} />
+                <meta head-key="twitter:title" name="twitter:title" content={fullTitle} />
+            </Head>
+            {canonicalUrl && (
+                <Head>
+                    <link head-key="canonical" rel="canonical" href={canonicalUrl} />
+                    <meta head-key="og:url" property="og:url" content={canonicalUrl} />
+                </Head>
+            )}
+
+            {description && (
+                <Head>
+                    <meta head-key="description" name="description" content={description} />
+                    <meta head-key="og:description" property="og:description" content={description} />
+                    <meta head-key="twitter:description" name="twitter:description" content={description} />
+                </Head>
+            )}
             {children}
         </AppLayoutTemplate>
     );

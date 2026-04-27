@@ -8,13 +8,14 @@ import {
   FaYoutube,
 } from "react-icons/fa6";
 import { Container } from '@/components/ui/layout/container';
+import { EmailImageLink } from "@/components/ui/email-image-link";
 import type { SharedData } from '@/types';
 
 interface AppData {
   name: string;
   tagline?: string;
+  email?: string;
   phone: string;
-  email: string;
   address: string;
   light_logo?: string;
   facebook?: string;
@@ -49,7 +50,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-footer text-footer-foreground">
       {/* Accent top border */}
-      <div className="h-1 w-full bg-primary " />
+      <div className="h-1 w-full bg-secondary " />
 
       <Container className="py-10">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
@@ -65,7 +66,7 @@ const Footer: React.FC = () => {
               )}
             </Link>
 
-            <p className="text-sm text-muted-foreground max-w-xs">
+            <p className="text-sm footer-foreground max-w-xs">
               {appData.tagline ||
                 "Committed to delivering quality services with trust and excellence."}
             </p>
@@ -82,16 +83,19 @@ const Footer: React.FC = () => {
               </p>
               <p>
                 <span className="mr-1.5 text-primary">✉️</span>
-                <a
-                  href={`mailto:${appData.email}`}
-                  className="hover:text-primary transition-colors break-all"
-                >
-                  {appData.email}
-                </a>
+                <EmailImageLink
+                  email={appData.email}
+                  variant="plain"
+                  color="#ffffff"
+                  fontSize={18}
+                  fontWeight={400}
+                  className="inline-block font-normal hover:text-primary transition-colors"
+                  imgClassName="inline-block h-[18px] w-auto max-w-[360px] align-[-2px]"
+                />
               </p>
               <p className="flex items-start text-sm">
                 <span className="mr-1.5 text-primary">🏢</span>
-                <span className="text-muted-foreground">{appData.address}</span>
+                <span className="footer-foreground">{appData.address}</span>
               </p>
             </div>
           </div>
@@ -106,7 +110,7 @@ const Footer: React.FC = () => {
                 <li key={link.id}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary"
+                    className="inline-flex items-center gap-2 footer-foreground transition-colors hover:text-primary"
                   >
                     <span className="rounded-full bg-muted" />
                     {link.name}
@@ -127,7 +131,7 @@ const Footer: React.FC = () => {
                   href={appData.facebook}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-primary footer-foreground transition-all hover:-translate-y-0.5 hover:bg-secondary hover:text-primary-foreground"
                 >
                   <FaFacebookF />
                 </a>
@@ -137,7 +141,7 @@ const Footer: React.FC = () => {
                   href={appData.twitter}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-primary footer-foreground transition-all hover:-translate-y-0.5 hover:bg-secondary hover:text-primary-foreground"
                 >
                   <FaXTwitter />
                 </a>
@@ -147,7 +151,7 @@ const Footer: React.FC = () => {
                   href={appData.instagram}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-primary footer-foreground transition-all hover:-translate-y-0.5 hover:bg-secondary hover:text-primary-foreground"
                 >
                   <FaInstagram />
                 </a>
@@ -157,7 +161,7 @@ const Footer: React.FC = () => {
                   href={appData.linkedin}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-primary footer-foreground transition-all hover:-translate-y-0.5 hover:bg-secondary hover:text-primary-foreground"
                 >
                   <FaLinkedinIn />
                 </a>
@@ -167,7 +171,7 @@ const Footer: React.FC = () => {
                   href={appData.youtube}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-primary footer-foreground transition-all hover:-translate-y-0.5 hover:bg-secondary hover:text-primary-foreground"
                 >
                   <FaYoutube />
                 </a>
@@ -178,7 +182,7 @@ const Footer: React.FC = () => {
             {/* 
             <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
               <div className="rounded-div border border-border bg-card/60 px-3 py-2.5">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] uppercase tracking-wide footer-foreground">
                   Total Visitors
                 </p>
                 <p className="mt-1 text-lg font-semibold text-primary">
@@ -186,7 +190,7 @@ const Footer: React.FC = () => {
                 </p>
               </div>
               <div className="rounded-div border border-border bg-card/60 px-3 py-2.5">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] uppercase tracking-wide footer-foreground">
                   Today&apos;s Visitors
                 </p>
                 <p className="mt-1 text-lg font-semibold text-primary">
@@ -199,7 +203,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-border py-4 text-center text-xs text-muted-foreground">
+        <div className="border-t border-border py-4 text-center text-xs footer-foreground">
           <div className="flex flex-col justify-between md:flex-row md:gap-4">
             <div className="copy">
               © {new Date().getFullYear()}{" "}

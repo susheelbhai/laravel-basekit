@@ -2,26 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\BaseModels\BaseInternalMediaModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Setting extends BaseInternalMediaModel
 {
     use HasFactory;
+
     protected $guarded = [];
-    protected $appends = ['favicon','square_dark_logo', 'square_dark_logo_converted', 'square_light_logo', 'square_light_logo_converted', 'dark_logo', 'dark_logo_converted', 'light_logo', 'light_logo_converted'];
+
+    protected $appends = ['favicon', 'square_dark_logo', 'square_dark_logo_converted', 'square_light_logo', 'square_light_logo_converted', 'dark_logo', 'dark_logo_converted', 'light_logo', 'light_logo_converted'];
 
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('square_dark_logo')
             ->singleFile();
-        
+
         $this->addMediaCollection('square_light_logo')
             ->singleFile();
-        
+
         $this->addMediaCollection('dark_logo')
             ->singleFile();
-        
+
         $this->addMediaCollection('light_logo')
             ->singleFile();
     }
@@ -29,18 +31,28 @@ class Setting extends BaseInternalMediaModel
     public function getFaviconAttribute(): string
     {
         $media = $this->getFirstMedia('square_dark_logo');
-        return $media ? $media->getUrl('thumbSquare') : '/dummy.png';
+        if (! $media) {
+            return '/dummy.png';
+        }
+
+        if ($media->mime_type === 'image/svg+xml') {
+            return $media->getUrl();
+        }
+
+        return $media->getUrl('thumbSquare');
     }
+
     public function getSquareDarkLogoAttribute(): string
     {
         $media = $this->getFirstMedia('square_dark_logo');
+
         return $media ? $media->getUrl() : '/dummy.png';
     }
 
     public function getSquareDarkLogoConvertedAttribute(): array
     {
         $media = $this->getFirstMedia('square_dark_logo');
-        if (!$media) {
+        if (! $media) {
             return [];
         }
         $urls = [];
@@ -49,19 +61,21 @@ class Setting extends BaseInternalMediaModel
                 $urls[$conversionName] = $media->getUrl($conversionName);
             }
         }
+
         return $urls;
     }
 
     public function getSquareLightLogoAttribute(): string
     {
         $media = $this->getFirstMedia('square_light_logo');
+
         return $media ? $media->getUrl() : '/dummy.png';
     }
 
     public function getSquareLightLogoConvertedAttribute(): array
     {
         $media = $this->getFirstMedia('square_light_logo');
-        if (!$media) {
+        if (! $media) {
             return [];
         }
         $urls = [];
@@ -70,19 +84,28 @@ class Setting extends BaseInternalMediaModel
                 $urls[$conversionName] = $media->getUrl($conversionName);
             }
         }
+
         return $urls;
     }
 
     public function getDarkLogoAttribute(): string
     {
         $media = $this->getFirstMedia('dark_logo');
-        return $media ? $media->getUrl('small') : '/dummy.png';
+        if (! $media) {
+            return '/dummy.png';
+        }
+
+        if ($media->mime_type === 'image/svg+xml') {
+            return $media->getUrl();
+        }
+
+        return $media->getUrl('small');
     }
 
     public function getDarkLogoConvertedAttribute(): array
     {
         $media = $this->getFirstMedia('dark_logo');
-        if (!$media) {
+        if (! $media) {
             return [];
         }
         $urls = [];
@@ -91,19 +114,28 @@ class Setting extends BaseInternalMediaModel
                 $urls[$conversionName] = $media->getUrl($conversionName);
             }
         }
+
         return $urls;
     }
 
     public function getLightLogoAttribute(): string
     {
         $media = $this->getFirstMedia('light_logo');
-        return $media ? $media->getUrl('small') : '/dummy.png';
+        if (! $media) {
+            return '/dummy.png';
+        }
+
+        if ($media->mime_type === 'image/svg+xml') {
+            return $media->getUrl();
+        }
+
+        return $media->getUrl('small');
     }
 
     public function getLightLogoConvertedAttribute(): array
     {
         $media = $this->getFirstMedia('light_logo');
-        if (!$media) {
+        if (! $media) {
             return [];
         }
         $urls = [];
@@ -112,6 +144,7 @@ class Setting extends BaseInternalMediaModel
                 $urls[$conversionName] = $media->getUrl($conversionName);
             }
         }
+
         return $urls;
     }
 }

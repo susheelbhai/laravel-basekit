@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import React from 'react';
 import {
     FaFacebookF,
@@ -6,15 +6,15 @@ import {
     FaLinkedinIn,
     FaXTwitter,
     FaYoutube,
-    FaEnvelope,
 } from 'react-icons/fa6';
 import AppearanceToggleDropdown from '@/components/ui/display/appearance-dropdown';
 import { Container } from '@/components/ui/layout/container';
+import { EmailImageLink } from '@/components/ui/email-image-link';
 import type { SharedData } from '@/types';
+import { Mail } from 'lucide-react';
 
 interface AppData {
-    email: string;
-    working_hour?: string;
+    email?: string;
     facebook?: string;
     twitter?: string;
     linkedin?: string;
@@ -32,21 +32,26 @@ const TopHeader: React.FC = () => {
     return (
         <div className="border-b border-gray-200 bg-primary/5 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
             <Container className="mx-auto flex items-center justify-between px-4 py-2 text-xs text-gray-600 sm:text-sm dark:text-slate-200">
-                {/* Left: Email + Working hours */}
+                {/* Left: Contact + Working hours */}
                 <div className="flex items-center gap-3 sm:gap-4">
-                    <a
-                        href={`mailto:${appData.email}`}
-                        className="inline-flex items-center gap-2 font-medium text-gray-700 transition-colors hover:text-primary dark:text-slate-100"
-                    >
-                        <FaEnvelope className="h-3.5 w-3.5" />
-                        <span className="truncate">{appData.email}</span>
-                    </a>
+                    <EmailImageLink
+                        email={appData.email}
+                        variant="plain"
+                        color="000000"
+                        darkColor="ffffff"
+                        fontSize={18}
+                        fontWeight={400}
+                        prefix={<Mail className="h-4 w-4 shrink-0 opacity-80" aria-hidden />}
+                        className="inline-flex items-center gap-2 font-normal text-gray-700 transition-colors hover:text-primary dark:text-slate-100"
+                        imgClassName="h-[22px] w-auto max-w-[320px]"
+                    />
 
                     <span className="hidden h-4 w-px bg-gray-300 md:inline-block dark:bg-slate-600" />
 
                     <span className="hidden text-xs text-gray-500 md:inline-block dark:text-slate-300">
+                        Working:&nbsp;
                         <span className="font-medium text-gray-700 dark:text-slate-100">
-                            {appData.working_hour || '8:00am – 5:00pm'}
+                            8:00am – 5:00pm
                         </span>
                     </span>
                 </div>

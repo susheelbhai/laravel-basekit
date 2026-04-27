@@ -93,7 +93,7 @@ export default function AppHeaderLayout({
             {children}
 
             <Footer />
-            <ScrollToTopButton variant="pie" />
+            <ScrollToTopButton variant="ring" />
         </div>
     );
 }
