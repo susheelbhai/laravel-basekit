@@ -2,32 +2,33 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Models\Faq;
-use App\Models\Team;
-use App\Models\PageTnc;
-use App\Models\Project;
-use App\Models\Service;
-use App\Models\PageHome;
-use App\Models\PageAbout;
-use App\Models\Portfolio;
-use App\Models\UserQuery;
-use App\Models\Newsletter;
-use App\Models\PageRefund;
-use App\Models\PageContact;
-use App\Models\PagePrivacy;
-use App\Models\Testimonial;
-use Illuminate\Http\Request;
 use App\Events\ContactFormSubmitted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserQueryRequest;
+use App\Models\Faq;
+use App\Models\Newsletter;
+use App\Models\PageAbout;
+use App\Models\PageContact;
+use App\Models\PageHome;
+use App\Models\PagePrivacy;
+use App\Models\PageRefund;
+use App\Models\PageTnc;
+use App\Models\Portfolio;
+use App\Models\Project;
+use App\Models\Service;
+use App\Models\Team;
+use App\Models\Testimonial;
+use App\Models\UserQuery;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    function dashboard()
+    public function dashboard()
     {
         $services = Service::whereIsActive(1)->get();
         $projects = Project::whereIsActive(1)->limit(3)->latest()->get()->map(function ($project) {
             $media = $project->getMedia('images');
+
             return [
                 ...$project->toArray(),
                 'thumbnail' => $media->first()?->getUrl('thumb'),
@@ -38,13 +39,16 @@ class HomeController extends Controller
         $testimonials = Testimonial::whereIsActive(1)->get();
         $clients = Portfolio::whereIsActive(1)->get();
         $data = PageHome::whereId(1)->first();
-        return $this->render('user/pages/home/index', compact( 'services', 'projects', 'testimonials', 'team', 'clients', 'data'));
+
+        return $this->render('user/pages/home/index', compact('services', 'projects', 'testimonials', 'team', 'clients', 'data'));
     }
-    function home()
+
+    public function home()
     {
         $services = Service::whereIsActive(1)->get();
         $projects = Project::whereIsActive(1)->limit(3)->latest()->get()->map(function ($project) {
             $media = $project->getMedia('images');
+
             return [
                 ...$project->toArray(),
                 'thumbnail' => $media->first()?->getUrl('thumb'),
@@ -55,34 +59,48 @@ class HomeController extends Controller
         $testimonials = Testimonial::whereIsActive(1)->get();
         $clients = Portfolio::whereIsActive(1)->get();
         $data = PageHome::whereId(1)->first();
-        return $this->render('user/pages/home/index', compact( 'services', 'projects', 'testimonials', 'team', 'clients', 'data'));
+
+        $this->seo(
+            title: $data?->banner_heading ?? config('app.name'),
+            description: 'Digamite is an IT company building premium websites, mobile apps, custom software, and digital marketing—focused on performance, design, and measurable growth.',
+            canonical: route('home'),
+            image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
+        );
+
+        return $this->render('user/pages/home/index', compact('services', 'projects', 'testimonials', 'team', 'clients', 'data'));
     }
-    function about()
+
+    public function about()
     {
         $data = PageAbout::firstOrFail();
-        return $this->render('user/pages/about/index', compact( 'data'));
+
+        return $this->render('user/pages/about/index', compact('data'));
     }
-    
-    function services()
+
+    public function services()
     {
         $data = Service::whereIsActive(1)->get();
+
         return $this->render('user/pages/service/index', compact('data'));
     }
-    
-    
-    function serviceDetail($slug)
+
+    public function serviceDetail($slug)
     {
         $data = Service::whereSlug($slug)->whereIsActive(1)->firstOrFail();
+
         return $this->render('user/pages/service/detail', compact('data'));
     }
-    function contact()
+
+    public function contact()
     {
         $data = PageContact::firstOrFail();
-        return $this->render('user/pages/contact/index', compact( 'data'));
+
+        return $this->render('user/pages/contact/index', compact('data'));
     }
-    function contactSubmit(UserQueryRequest $request)
+
+    public function contactSubmit(UserQueryRequest $request)
     {
-        $data = new UserQuery();
+        $data = new UserQuery;
         $data->name = $request['name'];
         $data->email = $request['email'];
         $data->phone = $request['phone'];
@@ -90,37 +108,45 @@ class HomeController extends Controller
         $data->message = $request['message'];
         $data->save();
         event(new ContactFormSubmitted($data));
+
         return back()->with('success', 'You have successfully submitted the form');
     }
 
-    function newsletter(Request $request)
+    public function newsletter(Request $request)
     {
         $request->validate([
-            'email'   => 'required|email|max:255',
+            'email' => 'required|email|max:255',
         ]);
         Newsletter::updateOrCreate(
             ['email' => $request['email']],
             ['unsubscribed_at' => null]
         );
+
         return back()->with('success', 'You have successfully subscribed to our newwsletter');
     }
 
-    function privacy()
+    public function privacy()
     {
         $data = PagePrivacy::whereId(1)->first();
-        return $this->render('user/pages/privacy', compact( 'data'));
+
+        return $this->render('user/pages/privacy', compact('data'));
     }
-    function tnc()
+
+    public function tnc()
     {
         $data = PageTnc::whereId(1)->first();
-        return $this->render('user/pages/tnc', compact( 'data'));
+
+        return $this->render('user/pages/tnc', compact('data'));
     }
-    function refund()
+
+    public function refund()
     {
         $data = PageRefund::whereId(1)->first();
-        return $this->render('user/pages/refund', compact( 'data'));
+
+        return $this->render('user/pages/refund', compact('data'));
     }
-    function faq()
+
+    public function faq()
     {
         $faqs = Faq::where('is_active', 1)
             ->with('category')
@@ -132,15 +158,16 @@ class HomeController extends Controller
                     'category_title' => $items->first()->category->title,
                     'faqs' => $items->map(function ($faq) {
                         return [
-                            'id'       => $faq->id,
+                            'id' => $faq->id,
                             'question' => $faq->question,
-                            'answer'   => $faq->answer,
+                            'answer' => $faq->answer,
                         ];
                     })->values(),
                 ];
             });
 
         $data = $faqs->values();
+
         return $this->render('user/pages/faq', compact('data'));
     }
 }
