@@ -15,6 +15,7 @@ class InstallPackages
     {
         $this->composer($this_data);
         $this->installAllNpm($this_data);
+        $this->ensurePackageJsonScripts($this_data);
     }
 
     public function composer($this_data)
@@ -342,6 +343,25 @@ class InstallPackages
 
         if (! $process->isSuccessful()) {
             throw new ProcessFailedException($process);
+        }
+    }
+
+    private function ensurePackageJsonScripts($this_data): void
+    {
+        $path = \base_path('package.json');
+        if (!is_readable($path)) {
+            return;
+        }
+
+        $json = json_decode((string) file_get_contents($path), true);
+        if (!is_array($json)) {
+            return;
+        }
+
+        if (!isset($json['scripts']['build:check'])) {
+            $json['scripts']['build:check'] = 'vite build --mode production';
+            file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+            $this_data->info('Added "build:check" script to package.json');
         }
     }
 }

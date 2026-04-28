@@ -12,7 +12,7 @@
         <link rel="stylesheet" href="{{ asset('themes/ck_editor/css/style.css') }}">
         <script src="{{ asset('themes/ck_editor/js/vendors.min.js') }}"></script>
         <script src="{{ asset('themes/ck_editor/vendor_components/ckeditor/ckeditor.js') }}"></script>
-        {{ $head }}
+        {{ $head ?? '' }}
     </x-slot>
 
     <x-slot name='header_logo'>
