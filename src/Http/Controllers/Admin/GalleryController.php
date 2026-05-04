@@ -21,11 +21,15 @@ class GalleryController extends Controller
             ];
         });
 
+        $this->seo(title: 'Gallery — Admin');
+
         return $this->render('admin/resources/gallery/index', compact('data'));
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Gallery — Admin');
+
         return $this->render('admin/resources/gallery/create');
     }
 
@@ -61,6 +65,8 @@ class GalleryController extends Controller
             }),
         ];
 
+        $this->seo(title: 'Gallery Detail — Admin');
+
         return $this->render('admin/resources/gallery/show', compact('data'));
     }
 
@@ -74,6 +80,8 @@ class GalleryController extends Controller
             'images' => $media->map(fn ($m) => $m->getUrl()),
             'media' => $media,
         ];
+
+        $this->seo(title: 'Edit Gallery — Admin');
 
         return $this->render('admin/resources/gallery/edit', compact('data'));
     }
@@ -120,5 +128,3 @@ class GalleryController extends Controller
         }
     }
 }
-
-

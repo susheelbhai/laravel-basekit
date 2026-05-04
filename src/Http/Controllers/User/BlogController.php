@@ -2,29 +2,38 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Models\Blog;
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Blog;
 use App\Models\BlogComment;
 use App\Models\BlogView;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class BlogController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $data = Blog::whereIsActive(1)->get();
+
+        $this->seo(
+            title: 'Blog',
+            description: 'Read our latest articles, insights, and updates.',
+        );
+
         return $this->render('user/pages/blog/index', compact('data'));
     }
-    public function show(Request $request, $slug) {
+
+    public function show(Request $request, $slug)
+    {
         $data = Blog::whereSlug($slug)->whereIsActive(1)->firstOrFail();
         $comments = BlogComment::whereBlogId($data['id'])->with('user')->latest()->get();
         BlogView::create(
             [
                 'blog_id' => $data['id'],
-                'ip_address'=> $request->ip()
+                'ip_address' => $request->ip(),
             ]
         );
         $related_blogs = Blog::whereIsActive(1)
@@ -33,9 +42,17 @@ class BlogController extends Controller
             ->limit(3)
             ->get();
         $data['related_blogs'] = $related_blogs;
+
+        $this->seo(
+            title: $data['title'],
+            description: strip_tags($data['short_description'] ?? ''),
+        );
+
         return $this->render('user/pages/blog/detail', compact('data', 'comments'));
     }
-    public function postComment(Request $request, $id) {
+
+    public function postComment(Request $request, $id)
+    {
         if (Auth::check('web')) {
             $user = Auth::user();
         } else {
@@ -46,14 +63,14 @@ class BlogController extends Controller
                     [
                         'name' => $request['name'],
                         'email' => $request['email'],
-                        'password' => Hash::make(rand(11111111,88888888)),
+                        'password' => Hash::make(rand(11111111, 88888888)),
                         'profile_pic' => 'images/profile_pic/dummy.png',
                     ]
                 );
             }
             Auth::login($user, 'web');
         }
-        $comment = new BlogComment();
+        $comment = new BlogComment;
         $comment->blog_id = $id;
         $comment->user_id = $user['id'];
         $comment->message = $request['comment'];
@@ -61,11 +78,12 @@ class BlogController extends Controller
         try {
             $comment->save();
             DB::commit();
+
             return back()->with('success', 'comment has been submitted successfully');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
-        
+
     }
 }

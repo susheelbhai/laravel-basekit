@@ -12,15 +12,20 @@ class PermissionController extends Controller
     public function index()
     {
         $permissions = Permission::with('roles')->get();
-        return $this->render("admin/resources/permission/index", [
-            "data" => $permissions
+
+        $this->seo(title: 'Permissions — Admin');
+
+        return $this->render('admin/resources/permission/index', [
+            'data' => $permissions,
         ]);
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Permission — Admin');
+
         return $this->render('admin/resources/permission/create', [
-            "roles" => Role::select('id', 'name as title')->get()
+            'roles' => Role::select('id', 'name as title')->get(),
         ]);
     }
 
@@ -31,6 +36,7 @@ class PermissionController extends Controller
         ]);
         $permission = Permission::create(['name' => $request['name']]);
         $permission->syncRoles($request['roles']);
+
         return to_route('admin.permission.index')->with('success', 'New permission created successfully');
     }
 
@@ -38,16 +44,19 @@ class PermissionController extends Controller
     {
         $roles = Role::select('id', 'name as title')->get();
         $permissions = Permission::whereId($id)->with('roles')->first();
-        return $this->render("admin/resources/permission/edit", [
-            "data" => $permissions,
-            "roles" => $roles
+
+        $this->seo(title: 'Edit Permission — Admin');
+
+        return $this->render('admin/resources/permission/edit', [
+            'data' => $permissions,
+            'roles' => $roles,
         ]);
     }
 
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'name' => 'required|unique:permissions,name,' . $id,
+            'name' => 'required|unique:permissions,name,'.$id,
             'roles' => 'required|array',
         ]);
 
@@ -57,7 +66,7 @@ class PermissionController extends Controller
         // roles[] will be ["1", "2", "3"] → cast to int
         $roleIds = collect($request->roles)
             ->filter()
-            ->map(fn($v) => (int) $v)
+            ->map(fn ($v) => (int) $v)
             ->all();
 
         $permission->syncRoles($roleIds);
@@ -68,6 +77,7 @@ class PermissionController extends Controller
     public function destroy(string $id)
     {
         Permission::find($id)->delete();
+
         return to_route('admin.permission.index');
     }
 }

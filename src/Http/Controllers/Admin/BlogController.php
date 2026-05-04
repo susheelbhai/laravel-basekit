@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\BlogRequest;
 use App\Models\Blog;
 use Illuminate\Support\Str;
-use App\Http\Requests\BlogRequest;
-use App\Http\Controllers\Controller;
 
 class BlogController extends Controller
 {
@@ -22,17 +22,22 @@ class BlogController extends Controller
                 'display_img' => $blog->getFirstMediaUrl('display_img'),
             ];
         });
+
+        $this->seo(title: 'Blogs — Admin');
+
         return $this->render('admin/resources/blog/index', compact('data'));
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Blog — Admin');
+
         return $this->render('admin/resources/blog/create');
     }
 
     public function store(BlogRequest $request)
     {
-        $data = new Blog();
+        $data = new Blog;
         $data->title = $request->title;
         $data->slug = Str::slug($request->title);
         $data->category = $request->category;
@@ -56,18 +61,25 @@ class BlogController extends Controller
             $data->addMediaFromRequest('ad_img')
                 ->toMediaCollection('ad_img');
         }
+
         return redirect()->route('admin.blog.index')->with('success', 'New blog created successfully');
     }
 
     public function show($id)
     {
         $data = Blog::findOrFail($id);
+
+        $this->seo(title: "{$data->title} — Admin");
+
         return $this->render('admin/resources/blog/show', compact('data'));
     }
 
     public function edit($id)
     {
         $data = Blog::find($id);
+
+        $this->seo(title: 'Edit Blog — Admin');
+
         return $this->render('admin/resources/blog/edit', compact('data'));
     }
 
@@ -100,6 +112,7 @@ class BlogController extends Controller
             $data->addMediaFromRequest('ad_img')
                 ->toMediaCollection('ad_img');
         }
+
         // dd($request);
         return redirect()->route('admin.blog.index')->with('success', 'New blog created successfully');
     }
@@ -110,6 +123,7 @@ class BlogController extends Controller
     public function destroy(Blog $blog)
     {
         $blog->delete();
+
         return redirect()->route('admin.blog.index');
     }
 }

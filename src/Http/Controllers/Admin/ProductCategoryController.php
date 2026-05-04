@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Support\Str;
-use App\Models\ProductCategory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductCategoryRequest;
+use App\Models\ProductCategory;
+use Illuminate\Support\Str;
 
 class ProductCategoryController extends Controller
 {
@@ -16,6 +16,9 @@ class ProductCategoryController extends Controller
                 'icon_thumb' => $category->getFirstMediaUrl('icon', 'thumb'),
             ]);
         });
+
+        $this->seo(title: 'Product Categories — Admin');
+
         return $this->render('admin/resources/product_category/index', compact('data'));
     }
 
@@ -25,12 +28,14 @@ class ProductCategoryController extends Controller
             ->latest()
             ->get(['id', 'title']);
 
+        $this->seo(title: 'Create Product Category — Admin');
+
         return $this->render('admin/resources/product_category/create', compact('parents'));
     }
 
     public function store(ProductCategoryRequest $request)
     {
-        $data = new ProductCategory();
+        $data = new ProductCategory;
 
         $data->parent_id = $request->parent_id ?: null;
 
@@ -66,6 +71,9 @@ class ProductCategoryController extends Controller
     public function show($id)
     {
         $data = ProductCategory::findOrFail($id);
+
+        $this->seo(title: "{$data->title} — Admin");
+
         return $this->render('admin/resources/product_category/show', compact('data'));
     }
 
@@ -76,7 +84,9 @@ class ProductCategoryController extends Controller
             ->latest()
             ->get(['id', 'title']);
 
-        return $this->render('admin/resources/product_category/edit', compact('parents','data'));
+        $this->seo(title: 'Edit Product Category — Admin');
+
+        return $this->render('admin/resources/product_category/edit', compact('parents', 'data'));
     }
 
     public function update(ProductCategoryRequest $request, $id)

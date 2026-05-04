@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class ProfileController extends Controller
 {
-    
     public function edit(Request $request)
     {
+        $this->seo(title: 'My Profile');
+
         return $this->render('user/profile', [
             'user' => $request->user(),
         ]);

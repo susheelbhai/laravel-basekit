@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Seller;
 
-use App\Models\Seller;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Seller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class ProfileController extends Controller
 {
@@ -19,6 +19,9 @@ class ProfileController extends Controller
     {
         $data = $request->user();
         $status = $request->session()->get('status');
+
+        $this->seo(title: 'My Profile — Seller');
+
         return $this->render('seller/settings/profile', compact('data', 'status'));
     }
 
@@ -44,7 +47,6 @@ class ProfileController extends Controller
             $seller->addMediaFromRequest('profile_pic')
                 ->toMediaCollection('profile_pic');
         }
-
 
         return Redirect::route('seller.profile.edit')->with('success', 'profile-updated');
     }

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Team;
-use App\Http\Requests\TeamRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TeamRequest;
+use App\Models\Team;
 
 class TeamController extends Controller
 {
@@ -22,18 +22,23 @@ class TeamController extends Controller
                 'image_thumb' => $team->getFirstMediaUrl('image', 'thumb'),
             ];
         });
+
+        $this->seo(title: 'Team — Admin');
+
         return $this->render('admin/resources/team/index', compact('data'));
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Team Member — Admin');
+
         return $this->render('admin/resources/team/create');
     }
 
     public function store(TeamRequest $request)
     {
-        $team = new Team();
-        
+        $team = new Team;
+
         $team->name = $request->name;
         $team->designation = $request->designation;
         $team->is_active = $request->is_active;
@@ -43,24 +48,31 @@ class TeamController extends Controller
             $team->addMediaFromRequest('image')
                 ->toMediaCollection('image');
         }
+
         return redirect()->route('admin.team.index')->with('success', 'New team member created successfully');
     }
 
     public function show($id)
     {
         $data = Team::findOrFail($id);
+
+        $this->seo(title: "{$data->name} — Admin");
+
         return $this->render('admin/resources/team/show', compact('data'));
     }
 
     public function edit($id)
     {
         $data = Team::find($id);
+
+        $this->seo(title: 'Edit Team Member — Admin');
+
         return $this->render('admin/resources/team/edit', compact('data'));
     }
 
     public function update(TeamRequest $request, $id)
     {
-        $team =  Team::find($id);
+        $team = Team::find($id);
 
         $team->name = $request->name;
         $team->designation = $request->designation;
@@ -72,6 +84,7 @@ class TeamController extends Controller
             $team->addMediaFromRequest('image')
                 ->toMediaCollection('image');
         }
+
         return redirect()->route('admin.team.index')->with('success', 'Team member updated successfully');
     }
 

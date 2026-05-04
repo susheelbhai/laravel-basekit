@@ -2,20 +2,25 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Slider1;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class Slider1Controller extends Controller
 {
     public function index()
     {
         $data = Slider1::latest()->get();
+
+        $this->seo(title: 'Sliders — Admin');
+
         return $this->render('admin/resources/slider/index', compact('data'));
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Slider — Admin');
+
         return $this->render('admin/resources/slider/create');
     }
 
@@ -26,7 +31,7 @@ class Slider1Controller extends Controller
             'image1' => 'required',
         ]);
 
-        $slider1 = new Slider1();
+        $slider1 = new Slider1;
         $slider1->heading1 = $request->heading1;
         $slider1->heading2 = $request->heading2;
         $slider1->paragraph1 = $request->paragraph1;
@@ -45,12 +50,16 @@ class Slider1Controller extends Controller
             $slider1->addMediaFromRequest('image2')
                 ->toMediaCollection('image2');
         }
+
         return redirect()->route('admin.slider1.index')->with('success', 'New slider created successfully');
     }
 
     public function edit($id)
     {
         $data = Slider1::find($id);
+
+        $this->seo(title: 'Edit Slider — Admin');
+
         return $this->render('admin/resources/slider/edit', compact('data'));
     }
 
@@ -59,7 +68,7 @@ class Slider1Controller extends Controller
         $request->validate([
             'heading1' => 'required',
         ]);
-        $slider1 =  Slider1::find($id);
+        $slider1 = Slider1::find($id);
 
         $slider1->heading1 = $request->heading1;
         $slider1->heading2 = $request->heading2;
@@ -81,6 +90,7 @@ class Slider1Controller extends Controller
             $slider1->addMediaFromRequest('image2')
                 ->toMediaCollection('image2');
         }
+
         return redirect()->route('admin.slider1.index')->with('success', 'Slider updated successfully');
     }
 }

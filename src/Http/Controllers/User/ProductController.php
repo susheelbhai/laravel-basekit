@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Models\Product;
-use Illuminate\Http\Request;
-use App\Models\ProductCategory;
-use App\Http\Controllers\Controller;
 use App\Events\ProductEnquirySubmitted;
+use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductEnquiry;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    function index()
+    public function index()
     {
         $categories = ProductCategory::whereIsActive(1)->get();
         $data = Product::whereIsActive(1)->get()->map(function ($product) {
@@ -18,9 +19,16 @@ class ProductController extends Controller
                 'thumbnail' => $product->getFirstMediaUrl('images', 'small') ?: $product->display_img,
             ]);
         });
+
+        $this->seo(
+            title: 'Products',
+            description: 'Browse our full range of products.',
+        );
+
         return $this->render('user/pages/product/index', compact('categories', 'data'));
     }
-    function productCategory($slug)
+
+    public function productCategory($slug)
     {
         $data = ProductCategory::whereSlug($slug)
             ->whereIsActive(1)
@@ -34,18 +42,31 @@ class ProductController extends Controller
                 ]);
             });
         $data->products = $products;
-        // dd($data);
+
+        $this->seo(
+            title: $data->title,
+            description: strip_tags($data->description ?? "Browse products in {$data->title}."),
+        );
+
         return $this->render('user/pages/product_category/show', compact('data'));
     }
-    function productDetail($slug)
+
+    public function productDetail($slug)
     {
         $data = Product::with('category')
             ->whereSlug($slug)
             ->whereIsActive(1)
             ->firstOrFail();
+
+        $this->seo(
+            title: $data->title,
+            description: strip_tags($data->short_description ?? $data->title),
+        );
+
         return $this->render('user/pages/product/detail', compact('data'));
     }
-    function productEnquiry(Request $request)
+
+    public function productEnquiry(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -54,7 +75,7 @@ class ProductController extends Controller
             'message' => 'nullable|string',
             'product_id' => 'required|exists:products,id',
         ]);
-        $data = new \App\Models\ProductEnquiry();
+        $data = new ProductEnquiry;
         $data->product_id = $request->product_id;
         $data->name = $request->name;
         $data->email = $request->email;

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Partner;
-use App\Http\Requests\PartnerRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PartnerRequest;
+use App\Models\Partner;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
+
 // No unused imports found, but removing all multiline comments
 
 class PartnerController extends Controller
@@ -23,17 +25,22 @@ class PartnerController extends Controller
                 'profile_pic_thumb' => $partner->getFirstMediaUrl('profile_pic', 'thumb'),
             ];
         });
+
+        $this->seo(title: 'Partners — Admin');
+
         return $this->render('admin/resources/partner/index', compact('data'));
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Partner — Admin');
+
         return $this->render('admin/resources/partner/create');
     }
 
     public function store(PartnerRequest $request)
     {
-        $data = new Partner();
+        $data = new Partner;
         $data->name = $request->name;
         $data->phone = $request->phone;
         $data->email = $request->email;
@@ -51,12 +58,18 @@ class PartnerController extends Controller
     public function show($id)
     {
         $data = Partner::find($id);
+
+        $this->seo(title: "{$data->name} — Admin");
+
         return $this->render('admin/resources/partner/show', compact('data'));
     }
 
     public function edit($id)
     {
         $data = Partner::find($id);
+
+        $this->seo(title: 'Edit Partner — Admin');
+
         return $this->render('admin/resources/partner/edit', compact('data'));
     }
 
@@ -74,7 +87,6 @@ class PartnerController extends Controller
                 ->toMediaCollection('profile_pic');
         }
 
-
         return Redirect::route('admin.partner.update', $id)->with('success', 'Partner updated successfully');
     }
 
@@ -82,7 +94,7 @@ class PartnerController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy($id)
     {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RoleRequest;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+
 // Removed unused Inertia import
 
 class RoleController extends Controller
@@ -13,15 +14,20 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::with('permissions')->get();
-        return $this->render("admin/resources/role/index", [
-            "data" => $roles
+
+        $this->seo(title: 'Roles — Admin');
+
+        return $this->render('admin/resources/role/index', [
+            'data' => $roles,
         ]);
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Role — Admin');
+
         return $this->render('admin/resources/role/create', [
-            "permissions" => Permission::select('id', 'name as title')->get()
+            'permissions' => Permission::select('id', 'name as title')->get(),
         ]);
     }
 
@@ -29,20 +35,22 @@ class RoleController extends Controller
     {
         $role = Role::create(['name' => $request['name']]);
         $role->syncPermissions($request['permissions']);
+
         return to_route('admin.role.index')->with('success', 'New role created successfully');
     }
 
-    public function show(string $id)
-    {
-    }
+    public function show(string $id) {}
 
     public function edit(string $id)
     {
         $roles = Role::whereId($id)->with('permissions')->first();
         $permissions = Permission::select('id', 'name as title')->get();
-        return $this->render("admin/resources/role/edit", [
-            "permissions" => $permissions,
-            "data" => $roles
+
+        $this->seo(title: 'Edit Role — Admin');
+
+        return $this->render('admin/resources/role/edit', [
+            'permissions' => $permissions,
+            'data' => $roles,
         ]);
     }
 
@@ -53,7 +61,7 @@ class RoleController extends Controller
 
         $permissionIds = collect($request->permissions)
             ->filter()
-            ->map(fn($v) => (int) $v)
+            ->map(fn ($v) => (int) $v)
             ->all();
 
         $role->syncPermissions($permissionIds);
@@ -61,7 +69,5 @@ class RoleController extends Controller
         return to_route('admin.role.index')->with('success', 'Role updated successfully');
     }
 
-    public function destroy(string $id)
-    {
-    }
+    public function destroy(string $id) {}
 }

@@ -2,34 +2,37 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Inertia\Inertia;
+use App\Http\Controllers\Controller;
+use App\Models\PageAbout;
+use App\Models\PageAuth;
+use App\Models\PageContact;
+use App\Models\PageHome;
+use App\Models\PagePrivacy;
+use App\Models\PageRefund;
 use App\Models\PageTnc;
 use App\Models\Slider1;
-use App\Models\PageAuth;
-use App\Models\PageHome;
-use App\Models\PageAbout;
-use App\Models\PageRefund;
-use App\Models\PageContact;
-use App\Models\PagePrivacy;
-use Illuminate\Http\Request;
 use App\Traits\HandlesMediaUploads;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\File;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PagesController extends Controller
 {
     use HandlesMediaUploads;
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-
     public function authPage()
     {
         $data = PageAuth::where('id', '=', 1)->first();
+
+        $this->seo(title: 'Auth Page — Admin');
+
         return $this->render('admin/resources/edit_pages/auth', compact('data'));
     }
+
     public function updateAuthPage(Request $request)
     {
         $data = PageAuth::find(1);
@@ -40,12 +43,17 @@ class PagesController extends Controller
 
         return to_route('admin.dashboard')->with('success', 'Auth Page Updated successfully');
     }
+
     public function homePage()
     {
         $data = PageHome::where('id', '=', 1)->first();
         $slider1 = Slider1::latest()->get();
+
+        $this->seo(title: 'Home Page — Admin');
+
         return $this->render('admin/resources/edit_pages/home', compact('data', 'slider1'));
     }
+
     public function updateHomePage(Request $request)
     {
         $data = PageHome::find(1);
@@ -63,12 +71,16 @@ class PagesController extends Controller
 
         return to_route('admin.dashboard')->with('success', 'Updated successfully');
     }
-    
+
     public function aboutPage()
     {
         $data = PageAbout::where('id', '=', 1)->first();
+
+        $this->seo(title: 'About Page — Admin');
+
         return $this->render('admin/resources/edit_pages/about', compact('data'));
     }
+
     public function updateAboutPage(Request $request)
     {
         $data = PageAbout::find(1);
@@ -86,16 +98,21 @@ class PagesController extends Controller
 
         return to_route('admin.dashboard')->with('success', 'Updated successfully');
     }
+
     public function contactPage()
     {
         $data = PageContact::where('id', '=', 1)->first();
+
+        $this->seo(title: 'Contact Page — Admin');
+
         return $this->render('admin/resources/edit_pages/contact', compact('data'));
     }
+
     public function updateContactPage(Request $request)
     {
         $data = PageContact::find(1);
         if ($request->hasFile('banner')) {
-            $banner_name = 'images/banner/' . uniqid() . '.' . $request->file('banner')->getClientOriginalExtension();
+            $banner_name = 'images/banner/'.uniqid().'.'.$request->file('banner')->getClientOriginalExtension();
             $request->banner->move(public_path('/storage/images/banner'), $banner_name);
             $data->banner = $banner_name;
         }
@@ -104,52 +121,71 @@ class PagesController extends Controller
         $data->map_embad_url = $request->map_embad_url;
         $data->working_hour = $request->working_hour;
         $data->update();
+
         return back()->with('success', 'Updated successfully');
     }
+
     public function tncPage()
     {
         $data = PageTnc::where('id', '=', 1)->first();
+
+        $this->seo(title: 'Terms & Conditions Page — Admin');
+
         return $this->render('admin/resources/edit_pages/tnc', compact('data'));
     }
+
     public function updateTncPage(Request $request)
     {
         $data = PageTnc::find(1);
         $data->title = $request->title;
         $data->content = $request->content;
         $data->update();
+
         return back()->with('success', 'Updated successfully');
     }
+
     public function privacyPage()
     {
         $data = PagePrivacy::where('id', '=', 1)->first();
+
+        $this->seo(title: 'Privacy Policy Page — Admin');
+
         return $this->render('admin/resources/edit_pages/privacy', compact('data'));
     }
+
     public function updatePrivacyPage(Request $request)
     {
         $data = PagePrivacy::find(1);
         $data->title = $request->title;
         $data->content = $request->content;
         $data->update();
+
         return back()->with('success', 'Updated successfully');
     }
+
     public function refundPage()
     {
         $data = PageRefund::where('id', '=', 1)->first();
+
+        $this->seo(title: 'Refund Policy Page — Admin');
+
         return $this->render('admin/resources/edit_pages/refund', compact('data'));
     }
+
     public function updateRefundPage(Request $request)
     {
         $data = PageRefund::find(1);
         $data->title = $request->title;
         $data->content = $request->content;
         $data->update();
+
         return back()->with('success', 'Updated successfully');
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -159,8 +195,7 @@ class PagesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function store(Request $request)
     {
@@ -171,7 +206,7 @@ class PagesController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show($id)
     {
@@ -182,7 +217,7 @@ class PagesController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit($id)
     {
@@ -192,9 +227,8 @@ class PagesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function update(Request $request, $id)
     {
@@ -205,7 +239,7 @@ class PagesController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy($id)
     {

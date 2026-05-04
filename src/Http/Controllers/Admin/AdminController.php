@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Inertia\Inertia;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminRequest;
 use App\Models\Admin;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Spatie\Permission\Models\Role;
-use App\Http\Requests\AdminRequest;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class AdminController extends Controller
 {
@@ -31,6 +29,9 @@ class AdminController extends Controller
                 'profile_pic_thumb' => $admin->getFirstMediaUrl('profile_pic', 'thumb'),
             ];
         });
+
+        $this->seo(title: 'Admins — Admin');
+
         return $this->render('admin/resources/admin/index', [
             'data' => $data,
         ]);
@@ -40,25 +41,28 @@ class AdminController extends Controller
     {
         $roles = Role::select('id', 'name as title')->get();
         $permissions = Permission::select('id', 'name as title')->get();
+
+        $this->seo(title: 'Create Admin — Admin');
+
         return $this->render('admin/resources/admin/create', compact('roles', 'permissions'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return Response
      */
     public function store(AdminRequest $request)
     {
-        $admin = new Admin();
-        $admin->name   = $request->name;
-        $admin->dob    = $request->dob;
+        $admin = new Admin;
+        $admin->name = $request->name;
+        $admin->dob = $request->dob;
         $admin->address = $request->address;
-        $admin->city   = $request->city;
-        $admin->state  = $request->state;
-        $admin->email  = $request->email;
-        $admin->phone  = $request->phone;
+        $admin->city = $request->city;
+        $admin->state = $request->state;
+        $admin->email = $request->email;
+        $admin->phone = $request->phone;
         // password = phone
         $admin->password = Hash::make($request->phone);
         $admin->save();
@@ -73,7 +77,7 @@ class AdminController extends Controller
             // roles[] will be like ["1", "3", "5"]
             $roleIds = collect($request->roles)
                 ->filter()
-                ->map(fn($v) => (int) $v)
+                ->map(fn ($v) => (int) $v)
                 ->all();
 
             $roles = Role::whereIn('id', $roleIds)->get();
@@ -84,7 +88,7 @@ class AdminController extends Controller
         if ($request->filled('permissions')) {
             $permissionIds = collect($request->permissions)
                 ->filter()
-                ->map(fn($v) => (int) $v)
+                ->map(fn ($v) => (int) $v)
                 ->all();
 
             $permissions = Permission::whereIn('id', $permissionIds)->get();
@@ -95,17 +99,19 @@ class AdminController extends Controller
             ->with('success', 'new admin created successfully');
     }
 
-
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show($id)
     {
         $data = Admin::whereId($id)->where('id', '!=', 1)->firstOrFail();
         $data->getAllPermissions();
+
+        $this->seo(title: "{$data->name} — Admin");
+
         return $this->render('admin/resources/admin/show', compact('data'));
     }
 
@@ -113,7 +119,7 @@ class AdminController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit($id)
     {
@@ -122,24 +128,27 @@ class AdminController extends Controller
         $data->getAllPermissions();
         $roles = Role::select('id', 'name as title')->get();
         $permissions = Permission::select('id', 'name as title')->get();
+
+        $this->seo(title: 'Edit Admin — Admin');
+
         return $this->render('admin/resources/admin/edit', compact('data', 'roles', 'permissions'));
     }
 
     public function update(AdminRequest $request, $id)
     {
-        
+
         $admin = Admin::findOrFail($id);
 
         // --------------------------
         // 🔹 UPDATE BASIC FIELDS
         // --------------------------
-        $admin->name    = $request->name;
-        $admin->dob     = $request->dob;
+        $admin->name = $request->name;
+        $admin->dob = $request->dob;
         $admin->address = $request->address;
-        $admin->city    = $request->city;
-        $admin->state   = $request->state;
-        $admin->email   = $request->email;
-        $admin->phone   = $request->phone;
+        $admin->city = $request->city;
+        $admin->state = $request->state;
+        $admin->email = $request->email;
+        $admin->phone = $request->phone;
         $admin->save();
 
         if ($request->hasFile('profile_pic')) {
@@ -155,7 +164,7 @@ class AdminController extends Controller
         if ($request->filled('roles')) {
             $roleIds = collect($request->roles)
                 ->filter()
-                ->map(fn($v) => (int)$v)
+                ->map(fn ($v) => (int) $v)
                 ->all();
 
             $admin->syncRoles($roleIds);
@@ -171,7 +180,7 @@ class AdminController extends Controller
         if ($request->filled('permissions')) {
             $permissionIds = collect($request->permissions)
                 ->filter()
-                ->map(fn($v) => (int)$v)
+                ->map(fn ($v) => (int) $v)
                 ->all();
 
             $admin->syncPermissions($permissionIds);

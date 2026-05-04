@@ -2,20 +2,25 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use App\Models\ImportantLink;
 use App\Http\Controllers\Controller;
+use App\Models\ImportantLink;
+use Illuminate\Http\Request;
 
 class ImportantLinkController extends Controller
 {
     public function index()
     {
         $data = ImportantLink::all();
+
+        $this->seo(title: 'Important Links — Admin');
+
         return $this->render('admin/resources/important_links/index', compact('data'));
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Important Link — Admin');
+
         return $this->render('admin/resources/important_links/create');
     }
 
@@ -25,23 +30,30 @@ class ImportantLinkController extends Controller
             'name' => 'required',
             'href' => 'required',
         ]);
-        $important_links = new ImportantLink();
+        $important_links = new ImportantLink;
         $important_links->name = $request->name;
         $important_links->href = $request->href;
         $important_links->is_active = $request->is_active;
         $important_links->save();
+
         return redirect()->route('admin.important_links.index')->with('success', 'New important link created successfully');
     }
 
     public function show($id)
     {
         $data = ImportantLink::find($id);
+
+        $this->seo(title: 'Important Link Detail — Admin');
+
         return $this->render('admin/resources/important_links/show', compact('data'));
     }
 
     public function edit($id)
     {
         $data = ImportantLink::find($id);
+
+        $this->seo(title: 'Edit Important Link — Admin');
+
         return $this->render('admin/resources/important_links/edit', compact('data'));
     }
 
@@ -51,12 +63,13 @@ class ImportantLinkController extends Controller
             'name' => 'required',
             'href' => 'required',
         ]);
-        $important_links =  ImportantLink::find($id);
+        $important_links = ImportantLink::find($id);
         $important_links->name = $request->name;
         $important_links->href = $request->href;
         $important_links->is_active = $request->is_active;
 
         $important_links->update();
+
         return redirect()->route('admin.important_links.index')->with('success', 'Important link updated successfully');
     }
 

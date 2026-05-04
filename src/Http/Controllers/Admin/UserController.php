@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\User;
-use App\Http\Requests\UserRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserRequest;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 
@@ -22,6 +22,9 @@ class UserController extends Controller
                 'profile_pic_thumb' => $user->getFirstMediaUrl('profile_pic', 'thumb'),
             ];
         });
+
+        $this->seo(title: 'Users — Admin');
+
         return $this->render('admin/resources/user/index', [
             'data' => $data,
         ]);
@@ -29,12 +32,14 @@ class UserController extends Controller
 
     public function create()
     {
+        $this->seo(title: 'Create User — Admin');
+
         return $this->render('admin/resources/user/create');
     }
 
     public function store(UserRequest $request)
     {
-        $data = new User();
+        $data = new User;
         $data->name = $request->name;
         $data->phone = $request->phone;
         $data->email = $request->email;
@@ -52,6 +57,9 @@ class UserController extends Controller
     public function show($id)
     {
         $data = User::find($id);
+
+        $this->seo(title: "{$data->name} — Admin");
+
         return $this->render('admin/resources/user/show', [
             'data' => $data,
         ]);
@@ -59,11 +67,13 @@ class UserController extends Controller
 
     public function edit($id)
     {
+        $this->seo(title: 'Edit User — Admin');
+
         return $this->render('admin/resources/user/edit', [
             'data' => User::find($id),
         ]);
     }
-    
+
     public function update(UserRequest $request, $id)
     {
         $data = User::find($id);
@@ -77,9 +87,9 @@ class UserController extends Controller
             $data->addMediaFromRequest('profile_pic')
                 ->toMediaCollection('profile_pic');
         }
+
         return Redirect::route('admin.user.update', $id)->with('success', 'profile-updated');
     }
-
 
     public function destroy($id)
     {

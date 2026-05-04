@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Seller;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 class HomeController extends Controller
 {
     public function dashboard(Request $request)
     {
+        $this->seo(title: 'Dashboard — Seller');
+
         return $this->render('seller/dashboard', [
             'submitUrl' => route('seller.login'),
             'canResetPassword' => Route::has('password.request'),

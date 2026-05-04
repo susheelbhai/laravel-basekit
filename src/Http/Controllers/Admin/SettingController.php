@@ -27,6 +27,8 @@ class SettingController extends Controller
     {
         $setting = $this->settings;
 
+        $this->seo(title: 'General Settings — Admin');
+
         return $this->render('admin/resources/settings/general', compact('setting'));
     }
 

@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Seller;
-use App\Http\Requests\SellerRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use App\Events\SellerCreated;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\SellerRequest;
+use App\Models\Seller;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
+
 // Removed unused Inertia, File, and Validator imports
 
 class SellerController extends Controller
@@ -25,17 +26,22 @@ class SellerController extends Controller
                 'profile_pic_thumb' => $seller->getFirstMediaUrl('profile_pic', 'thumb'),
             ];
         });
+
+        $this->seo(title: 'Sellers — Admin');
+
         return $this->render('admin/resources/seller/index', compact('data'));
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Seller — Admin');
+
         return $this->render('admin/resources/seller/create');
     }
 
     public function store(SellerRequest $request)
     {
-        $data = new Seller();
+        $data = new Seller;
         $data->name = $request->name;
         $data->phone = $request->phone;
         $data->email = $request->email;
@@ -55,12 +61,18 @@ class SellerController extends Controller
     public function show($id)
     {
         $data = Seller::find($id);
+
+        $this->seo(title: "{$data->name} — Admin");
+
         return $this->render('admin/resources/seller/show', compact('data'));
     }
 
     public function edit($id)
     {
         $data = Seller::find($id);
+
+        $this->seo(title: 'Edit Seller — Admin');
+
         return $this->render('admin/resources/seller/edit', compact('data'));
     }
 
@@ -78,7 +90,6 @@ class SellerController extends Controller
                 ->toMediaCollection('profile_pic');
         }
 
-
         return Redirect::route('admin.seller.update', $id)->with('success', 'Seller updated successfully');
     }
 
@@ -86,7 +97,7 @@ class SellerController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy($id)
     {

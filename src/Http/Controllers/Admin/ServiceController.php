@@ -2,27 +2,32 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ServiceRequest;
 use App\Models\Service;
 use Illuminate\Support\Str;
-use App\Http\Requests\ServiceRequest;
-use App\Http\Controllers\Controller;
 
 class ServiceController extends Controller
 {
-
     public function index()
     {
         $data = Service::latest()->get();
+
+        $this->seo(title: 'Services — Admin');
+
         return $this->render('admin/resources/service/index', compact('data'));
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Service — Admin');
+
         return $this->render('admin/resources/service/create');
     }
+
     public function store(ServiceRequest $request)
     {
-        $data = new Service();
+        $data = new Service;
 
         $data->title = $request->title;
         $data->slug = Str::slug($request->title);
@@ -39,18 +44,25 @@ class ServiceController extends Controller
             $data->addMediaFromRequest('display_img')
                 ->toMediaCollection('display_img');
         }
+
         return redirect()->route('admin.service.index')->with('success', 'New service created successfully');
     }
 
     public function show($id)
     {
         $data = Service::findOrFail($id);
+
+        $this->seo(title: "{$data->title} — Admin");
+
         return $this->render('admin/resources/service/show', compact('data'));
     }
-    
+
     public function edit($id)
     {
         $data = Service::findOrFail($id);
+
+        $this->seo(title: 'Edit Service — Admin');
+
         return $this->render('admin/resources/service/edit', compact('data'));
     }
 
@@ -73,10 +85,10 @@ class ServiceController extends Controller
             $data->addMediaFromRequest('display_img')
                 ->toMediaCollection('display_img');
         }
+
         return redirect()->route('admin.service.index')->with('success', 'Service data updated successfully');
     }
 
-  
     public function destroy(Service $service)
     {
         //

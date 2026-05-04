@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Admin;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Admin;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class ProfileController extends Controller
 {
@@ -18,8 +18,10 @@ class ProfileController extends Controller
     public function edit(Request $request)
     {
         $data = $request->user();
-        // return $data;
         $status = $request->session()->get('status');
+
+        $this->seo(title: 'My Profile — Admin');
+
         return $this->render('admin/settings/profile', compact('data', 'status'));
     }
 
@@ -46,8 +48,6 @@ class ProfileController extends Controller
                 ->toMediaCollection('profile_pic');
         }
 
-
         return Redirect::route('admin.profile.edit')->with('success', 'profile-updated');
     }
-
 }

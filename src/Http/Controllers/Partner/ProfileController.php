@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Partner;
 
-use App\Models\Partner;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Partner;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class ProfileController extends Controller
 {
@@ -19,6 +19,9 @@ class ProfileController extends Controller
     {
         $data = $request->user();
         $status = $request->session()->get('status');
+
+        $this->seo(title: 'My Profile — Partner');
+
         return $this->render('partner/settings/profile', compact('data', 'status'));
     }
 
@@ -45,8 +48,6 @@ class ProfileController extends Controller
                 ->toMediaCollection('profile_pic');
         }
 
-
         return Redirect::route('partner.profile.edit')->with('success', 'profile-updated');
     }
-
 }

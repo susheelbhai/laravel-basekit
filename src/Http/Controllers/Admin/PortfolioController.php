@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Portfolio;
-use App\Http\Requests\PortfolioRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PortfolioRequest;
+use App\Models\Portfolio;
+use Illuminate\Http\Response;
+
 // Removed unused Inertia, File, and Validator imports
 
 class PortfolioController extends Controller
@@ -12,17 +14,22 @@ class PortfolioController extends Controller
     public function index()
     {
         $data = Portfolio::latest()->paginate(15);
+
+        $this->seo(title: 'Portfolio — Admin');
+
         return $this->render('admin/resources/portfolio/index', compact('data'));
     }
 
     public function create()
     {
+        $this->seo(title: 'Create Portfolio — Admin');
+
         return $this->render('admin/resources/portfolio/create');
     }
 
     public function store(PortfolioRequest $request)
     {
-        $portfolio = new Portfolio();
+        $portfolio = new Portfolio;
         $portfolio->name = $request->name;
         $portfolio->url = $request->url;
         $portfolio->is_active = $request->is_active;
@@ -32,24 +39,31 @@ class PortfolioController extends Controller
             $portfolio->addMediaFromRequest('logo')
                 ->toMediaCollection('logo');
         }
+
         return redirect()->route('admin.portfolio.index')->with('success', 'New portfolio created successfully');
     }
 
     public function show($id)
     {
         $data = Portfolio::findOrFail($id);
+
+        $this->seo(title: "{$data->name} — Admin");
+
         return $this->render('admin/resources/portfolio/show', compact('data'));
     }
 
     public function edit($id)
     {
         $data = Portfolio::find($id);
+
+        $this->seo(title: 'Edit Portfolio — Admin');
+
         return $this->render('admin/resources/portfolio/edit', compact('data'));
     }
 
     public function update(PortfolioRequest $request, $id)
     {
-        $portfolio =  Portfolio::find($id);
+        $portfolio = Portfolio::find($id);
 
         $portfolio->name = $request->name;
         $portfolio->url = $request->url;
@@ -61,6 +75,7 @@ class PortfolioController extends Controller
             $portfolio->addMediaFromRequest('logo')
                 ->toMediaCollection('logo');
         }
+
         return redirect()->route('admin.portfolio.index')->with('success', 'Portfolio updated successfully');
     }
 
@@ -68,7 +83,7 @@ class PortfolioController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy($id)
     {

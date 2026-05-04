@@ -23,6 +23,8 @@ class ProductController extends Controller
             ];
         });
 
+        $this->seo(title: 'Products — Admin');
+
         return $this->render('admin/resources/product/index', compact('data'));
     }
 
@@ -31,6 +33,8 @@ class ProductController extends Controller
         $categories = ProductCategory::whereNull('parent_id')
             ->latest()
             ->get(['id', 'title']);
+
+        $this->seo(title: 'Create Product — Admin');
 
         return $this->render('admin/resources/product/create', compact('categories'));
     }
@@ -94,6 +98,8 @@ class ProductController extends Controller
             'images' => $media->map(fn ($m) => $m->getUrl()),
         ];
 
+        $this->seo(title: "{$product->title} — Admin");
+
         return $this->render('admin/resources/product/show', compact('data'));
     }
 
@@ -118,6 +124,8 @@ class ProductController extends Controller
                 'xlarge' => $m->getUrl('xlarge'),
             ]),
         ];
+
+        $this->seo(title: 'Edit Product — Admin');
 
         return $this->render('admin/resources/product/edit', compact('data', 'categories'));
     }
