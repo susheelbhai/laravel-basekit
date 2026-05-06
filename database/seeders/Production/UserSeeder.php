@@ -1,0 +1,20 @@
+﻿<?php
+
+namespace Database\Seeders\Production;
+
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+class UserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        include('data/data.php');
+        User::insert($users);
+    }
+}
+
