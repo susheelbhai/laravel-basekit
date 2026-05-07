@@ -57,7 +57,9 @@ export default function AppSidebarLayout({
             <AppContent variant="sidebar">
                 <AppSidebarHeader breadcrumbs={breadcrumbs} notificationData={notificationData} />
                 <FlashMessageHandler />
-                {children}
+                <div className="m-4">
+                    {children}
+                </div>
             </AppContent>
         </AppShell>
     );

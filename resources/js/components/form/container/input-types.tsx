@@ -23,4 +23,9 @@ export interface InputDivProps extends InputHTMLAttributes<HTMLInputElement> {
   editorCustomCss?: string; // Path to custom CSS file for CKEditor UI styling
   editorType?: 'tinymce' | 'ckeditor'; // Editor type selector
   timeFormat?: '12' | '24'; // For TimePicker: 12-hour or 24-hour format
+    // Async select props
+  fetchUrl?: string;
+  fetchRouteName?: string;
+  fetchQueryParam?: string;
+  minSearchLength?: number;
 }

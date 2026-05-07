@@ -69,10 +69,21 @@ class SettingController extends Controller
             if ($extension === 'svg') {
                 file_put_contents($destSvg, file_get_contents($tmpPath));
             } else {
-                $image160 = $imageManager->read($tmpPath)->resize(160, 160);
-                $image32 = $imageManager->read($tmpPath)->resize(32, 32);
-                $image160->toPng()->save($destPng);
-                $image32->toPng()->save($destIco);
+                $image160 = $imageManager->decodePath($tmpPath)->resize(160, 160);
+                $image32 = $imageManager->decodePath($tmpPath)->resize(32, 32);
+                $image160->save($destPng);
+                // GD does not support ICO encoding; wrap a PNG inside an ICO container instead
+                $tmpIcoPng = $publicPath.DIRECTORY_SEPARATOR.'tmp-favicon-32.png';
+                $image32->save($tmpIcoPng);
+                $pngData = file_get_contents($tmpIcoPng);
+                $pngSize = strlen($pngData);
+                // ICO header (6 bytes) + one directory entry (16 bytes) + PNG data
+                $icoHeader = pack('vvv', 0, 1, 1); // reserved, type=1 (ICO), count=1
+                $dirEntry = pack('CCCCvvVV', 32, 32, 0, 0, 1, 32, $pngSize, 6 + 16);
+                file_put_contents($destIco, $icoHeader.$dirEntry.$pngData);
+                if (file_exists($tmpIcoPng)) {
+                    unlink($tmpIcoPng);
+                }
                 $base64 = base64_encode(file_get_contents($destPng));
                 $svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><image href="data:image/png;base64,'.$base64.'" height="160" width="160"/></svg>';
                 file_put_contents($destSvg, $svgContent);
@@ -91,14 +102,14 @@ class SettingController extends Controller
             if ($extension === 'svg') {
                 file_put_contents($dest, file_get_contents($tmpPath));
             } else {
-                $image = $imageManager->read($tmpPath);
+                $image = $imageManager->decodePath($tmpPath);
                 $origWidth = $image->width();
                 $origHeight = $image->height();
                 $newHeight = 120;
                 $newWidth = intval($origWidth * ($newHeight / $origHeight));
                 $resized = $image->resize($newWidth, $newHeight);
                 $tmpPng = $publicPath.DIRECTORY_SEPARATOR.'tmp-dark-logo.png';
-                $resized->toPng()->save($tmpPng);
+                $resized->save($tmpPng);
                 $base64 = base64_encode(file_get_contents($tmpPng));
                 $svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="'.$newWidth.'" height="120"><image href="data:image/png;base64,'.$base64.'" height="120" width="'.$newWidth.'"/></svg>';
                 file_put_contents($dest, $svgContent);
